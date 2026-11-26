@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Music Stuff — Practice & Training Tools</title>
+  <title>Music Stuff — Band Practice Hub</title>
   <style>
     :root {
       --bg: #0f1115;
@@ -13,6 +13,7 @@
       --text: #f3f4f6;
       --muted: #9ca3af;
       --accent: #38bdf8;
+      --section-label: #6b7280;
     }
 
     * {
@@ -29,7 +30,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 3rem 1.25rem;
+      padding: 2.5rem 1.25rem;
     }
 
     .container {
@@ -38,14 +39,14 @@
     }
 
     header {
-      margin-bottom: 2.25rem;
+      margin-bottom: 2rem;
     }
 
     h1 {
       font-size: 1.75rem;
       font-weight: 700;
       letter-spacing: -0.02em;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.35rem;
     }
 
     .subtitle {
@@ -53,10 +54,24 @@
       font-size: 0.95rem;
     }
 
+    .category {
+      margin-bottom: 1.75rem;
+    }
+
+    .category-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--section-label);
+      margin-bottom: 0.65rem;
+      padding-left: 0.2rem;
+    }
+
     .grid {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
     .card {
@@ -66,7 +81,7 @@
       background-color: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 1.25rem 1.4rem;
+      padding: 1.1rem 1.35rem;
       text-decoration: none;
       color: inherit;
       transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
@@ -79,9 +94,9 @@
     }
 
     .card-info h2 {
-      font-size: 1.1rem;
+      font-size: 1.08rem;
       font-weight: 600;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.25rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -96,15 +111,20 @@
       color: var(--accent);
     }
 
+    .badge-muted {
+      background: rgba(156, 163, 175, 0.15);
+      color: var(--muted);
+    }
+
     .card-info p {
       color: var(--muted);
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       line-height: 1.4;
     }
 
     .arrow {
       color: var(--muted);
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       margin-left: 1rem;
       transition: transform 0.15s ease, color 0.15s ease;
     }
@@ -115,7 +135,7 @@
     }
 
     footer {
-      margin-top: 3rem;
+      margin-top: 2.5rem;
       color: var(--muted);
       font-size: 0.8rem;
       text-align: center;
@@ -126,37 +146,61 @@
   <div class="container">
     <header>
       <h1>Music Stuff</h1>
-      <p class="subtitle">Interactive practice tools for chord progressions, scales, and voicings.</p>
+      <p class="subtitle">Interactive practice tools for rhythm, fretboard, and keys.</p>
     </header>
 
-    <main class="grid">
-      <a class="card" href="./DrillBuddy_v1.1.html">
-        <div class="card-info">
-          <h2>DrillBuddy <span class="badge">v1.1</span></h2>
-          <p>Fretboard & scale trainer with J-Pop chord progressions, groove loop, and real-time note highlights.</p>
-        </div>
-        <span class="arrow">→</span>
-      </a>
+    <!-- Drums Category -->
+    <section class="category">
+      <div class="category-title">DrumsBuddy · Rhythm &amp; Rudiments</div>
+      <div class="grid">
+        <a class="card" href="./DrumsBuddyv1.4.html">
+          <div class="card-info">
+            <h2>DrumsBuddy <span class="badge">v1.4</span></h2>
+            <p>Rhythm groove trainer, subdivisions, and rudiment practice tool.</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </div>
+    </section>
 
-      <a class="card" href="./keysbuddy.html">
-        <div class="card-info">
-          <h2>KeysBuddy <span class="badge">Keys</span></h2>
-          <p>Keyboard chord voicing, progression ear-training, and synth practice companion.</p>
-        </div>
-        <span class="arrow">→</span>
-      </a>
+    <!-- Guitar / Bass Category -->
+    <section class="category">
+      <div class="category-title">DrillBuddy · Guitar &amp; Bass</div>
+      <div class="grid">
+        <a class="card" href="./DrillBuddy_v1.1.html">
+          <div class="card-info">
+            <h2>DrillBuddy <span class="badge">v1.1 Latest</span></h2>
+            <p>Fretboard &amp; scale trainer with J-Pop chord progressions, groove loop, and real-time note highlights.</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
 
-      <a class="card" href="./DrillBuddy_v1.html">
-        <div class="card-info">
-          <h2>DrillBuddy <span class="badge">v1.0</span></h2>
-          <p>Initial release of the fretboard and chord progression drill tool.</p>
-        </div>
-        <span class="arrow">→</span>
-      </a>
-    </main>
+        <a class="card" href="./DrillBuddy_v1.html">
+          <div class="card-info">
+            <h2>DrillBuddy <span class="badge badge-muted">v1.0 Archive</span></h2>
+            <p>Initial release of the fretboard and chord progression drill tool.</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Keys Category -->
+    <section class="category">
+      <div class="category-title">KeysBuddy · Keyboard &amp; Synth</div>
+      <div class="grid">
+        <a class="card" href="./keysbuddy_v1.html">
+          <div class="card-info">
+            <h2>KeysBuddy <span class="badge">v1.0</span></h2>
+            <p>Keyboard chord voicing, progression ear-training, and synth practice companion.</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </div>
+    </section>
 
     <footer>
-      Hosted on GitHub Pages · JupitrisPotato/Music-Stuff
+      JupitrisPotato / Music-Stuff
     </footer>
   </div>
 </body>
