@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0c0e14" />
+  <title>鼓手基本功与节奏练习器 / Drummer Rudiment & Rhythm Trainer</title>
+  <script>
+    // Dynamically inject Web App Manifest & Apple Touch Icon for standalone home screen app experience
+    (function setupPWA() {
+      const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" rx="40" fill="#151924"/><circle cx="90" cy="90" r="56" fill="none" stroke="#38bdf8" stroke-width="10"/><line x1="56" y1="126" x2="128" y2="54" stroke="#fb923c" stroke-width="10" stroke-linecap="round"/><line x1="124" y1="126" x2="52" y2="54" stroke="#22c55e" stroke-width="10" stroke-linecap="round"/></svg>`;
+      const iconUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgIcon);
+      const appleLink = document.createElement("link");
+      appleLink.rel = "apple-touch-icon";
+      appleLink.href = iconUrl;
+      document.head.appendChild(appleLink);
+
+      const manifest = {
+        name: "Drummer Rudiment & Rhythm Trainer",
+        short_name: "DrumTrainer",
+        start_url: ".",
+        display: "standalone",
+        background_color: "#0c0e14",
+        theme_color: "#0c0e14",
+        icons: [{ src: iconUrl, sizes: "180x180", type: "image/svg+xml" }]
+      };
+      const manifestBlob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+      const manifestLink = document.createElement("link");
+      manifestLink.rel = "manifest";
+      manifestLink.href = URL.createObjectURL(manifestBlob);
+      document.head.appendChild(manifestLink);
+    })();
+  </script>
+  <style>
+    :root {
+      --bg: #0c0e14;
+      --card: #151924;
+      --card-2: #1c2230;
+      --border: #2a3246;
+      --text: #eef2ff;
+      --muted: #8f9bb3;
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --right-hand: #38bdf8;
+      --left-hand: #fb923c;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      min-height: 100%;
+    }
+
+    body {
+      padding: 14px 14px 104px 14px;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .title-wrap {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .title-wrap h1 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .title-wrap p {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .lang-btn {
+      font-size: 11px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--card-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .lang-btn:active {
+      background: #283147;
+    }
+
+    .audio-badge {
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.14);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .audio-badge.ready {
+      background: rgba(34, 197, 94, 0.14);
+      color: #4ade80;
+      border-color: rgba(34, 197, 94, 0.35);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .preset-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .preset-btn {
+      padding: 9px 6px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .preset-btn:active {
+      background: #283147;
+      transform: scale(0.98);
+    }
+
+    .bpm-display {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px;
+      margin: 4px 0 10px;
+    }
+
+    .bpm-num {
+      font-size: 46px;
+      font-weight: 800;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+    }
+
+    .bpm-unit {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .timer-pill {
+      font-size: 12px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bpm-controls {
+      display: grid;
+      grid-template-columns: 52px 1fr 52px;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .step-btn {
+      height: 46px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 22px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .step-btn:active {
+      transform: scale(0.96);
+      background: #252d40;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      height: 28px;
+      cursor: pointer;
+    }
+
+    .beats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .beat-pad {
+      min-height: 54px;
+      border-radius: 12px;
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-variant-numeric: tabular-nums;
+      cursor: pointer;
+      padding: 4px 2px;
+      transition: transform 0.06s ease, background 0.06s ease, border-color 0.06s ease;
+    }
+
+    .beat-pad .b-num {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .beat-pad .b-tag {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .beat-pad.accent-on {
+      border-color: rgba(245, 158, 11, 0.75);
+      background: rgba(245, 158, 11, 0.14);
+    }
+
+    .beat-pad.accent-on .b-tag {
+      color: #fbbf24;
+      font-weight: 700;
+    }
+
+    .beat-pad.active {
+      background: rgba(56, 189, 248, 0.24);
+      border-color: var(--accent);
+      transform: scale(1.03);
+    }
+
+    .beat-pad.active.accent-on {
+      background: rgba(245, 158, 11, 0.36);
+      border-color: var(--warn);
+    }
+
+    .beat-pad.muted-bar {
+      opacity: 0.45;
+      border-style: dashed;
+    }
+
+    .pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill-btn {
+      padding: 7px 11px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .pill-btn.active {
+      background: var(--accent);
+      color: #071018;
+      border-color: var(--accent);
+    }
+
+    .pill-btn.warn-active {
+      background: var(--warn);
+      color: #071018;
+      border-color: var(--warn);
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 0;
+    }
+
+    .switch-row + .switch-row {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .switch-label {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .switch-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .toggle {
+      width: 48px;
+      height: 28px;
+      border-radius: 999px;
+      background: #2b3347;
+      border: none;
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s ease;
+    }
+
+    .toggle.on {
+      background: var(--accent-2);
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.2s ease;
+    }
+
+    .toggle.on::after {
+      transform: translateX(20px);
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .mini-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .mini-field label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .mini-field input, .mini-field select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .custom-stick-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .custom-stick-row input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .status-banner {
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: var(--card-2);
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .status-banner .live-state {
+      font-weight: 700;
+      color: var(--accent-2);
+    }
+
+    .status-banner .mute-state {
+      font-weight: 700;
+      color: var(--warn);
+    }
+
+    .sticking-strip {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .stick-cell {
+      padding: 10px 4px;
+      border-radius: 10px;
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      text-align: center;
+      transition: transform 0.05s ease, background 0.05s ease, opacity 0.15s ease;
+    }
+
+    .stick-cell.hand-muted {
+      opacity: 0.35;
+    }
+
+    .stick-cell .hand {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .stick-cell .hand.R {
+      color: var(--right-hand);
+    }
+
+    .stick-cell .hand.L {
+      color: var(--left-hand);
+    }
+
+    .stick-cell .step-idx {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .stick-cell.active {
+      transform: scale(1.06);
+      border-color: #fff;
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .legend-row {
+      display: flex;
+      gap: 14px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .legend-row span i {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+
+    .dock-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(12, 14, 20, 0.94);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+      display: flex;
+      gap: 10px;
+      max-width: 560px;
+      margin: 0 auto;
+      z-index: 50;
+    }
+
+    .play-btn {
+      flex: 1;
+      height: 50px;
+      border-radius: 14px;
+      border: none;
+      background: var(--accent-2);
+      color: #06130b;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .play-btn.playing {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .tap-btn {
+      width: 104px;
+      height: 50px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tap-btn:active {
+      background: #283147;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="title-wrap">
+      <h1 id="appTitle">鼓手基本功与节奏练习器</h1>
+      <p id="appSubtitle">全功能版 · 自动保存 · 零漂移时钟</p>
+    </div>
+    <div class="top-actions">
+      <button id="langToggleBtn" class="lang-btn" type="button">EN</button>
+      <div id="audioStatus" class="audio-badge">点击播放解锁声音</div>
+    </div>
+  </div>
+
+  <!-- 快捷预设 Presets -->
+  <div class="card">
+    <div class="card-header">
+      <span id="presetCardTitle" class="card-title">快捷训练预设（Presets）</span>
+      <button id="resetSettingsBtn" class="pill-btn" type="button">恢复默认</button>
+    </div>
+    <div class="preset-row">
+      <button id="presetWarmup" class="preset-btn" type="button">双跳热身 80</button>
+      <button id="presetGap" class="preset-btn" type="button">Gap 稳拍挑战</button>
+      <button id="presetSpeed" class="preset-btn" type="button">复合跳提速</button>
+    </div>
+  </div>
+
+  <!-- 节拍、速度、拍号与重拍切换 -->
+  <div class="card">
+    <div class="card-header">
+      <span id="tempoCardTitle" class="card-title">速度、拍号与重拍切换</span>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span id="timerDisplay" class="timer-pill">00:00</span>
+        <span id="barCounter" class="card-sub">第 1 小节</span>
+      </div>
+    </div>
+
+    <div class="bpm-display">
+      <span id="bpmValue" class="bpm-num">100</span>
+      <span class="bpm-unit">BPM</span>
+    </div>
+
+    <div class="bpm-controls">
+      <button id="bpmMinus" class="step-btn" type="button">-</button>
+      <input id="bpmSlider" type="range" min="40" max="240" value="100" />
+      <button id="bpmPlus" class="step-btn" type="button">+</button>
+    </div>
+
+    <div class="card-header" style="margin-top: 8px; margin-bottom: 6px;">
+      <span id="meterLabel" class="card-sub">拍号</span>
+      <div id="meterGroup" class="pill-group">
+        <button class="pill-btn active" data-meter="4" type="button">4/4</button>
+        <button class="pill-btn" data-meter="3" type="button">3/4</button>
+        <button class="pill-btn" data-meter="6" type="button">6/8</button>
+        <button class="pill-btn" data-meter="5" type="button">5/4</button>
+        <button class="pill-btn" data-meter="7" type="button">7/8</button>
+      </div>
+    </div>
+
+    <div id="beatsRow" class="beats-row"></div>
+    <div id="accentHint" class="card-sub" style="margin-top: 6px;">点按任一拍格子可切换该拍是否为“重音”，练习重音位移。</div>
+
+    <!-- 自动重音位移 & 预备拍 -->
+    <div class="switch-row" style="margin-top: 10px;">
+      <div>
+        <div id="autoShiftTitle" class="switch-label">重音自动顺移（Auto Accent Shift）</div>
+        <div id="autoShiftDesc" class="switch-desc">每隔设定小节数，重音自动向后移一拍</div>
+      </div>
+      <button id="autoShiftToggle" class="toggle" type="button" aria-label="Toggle Auto Accent Shift"></button>
+    </div>
+    <div class="mini-grid-2">
+      <div class="mini-field">
+        <label id="shiftBarsLabel" for="shiftBarsInput">每几小节顺移</label>
+        <input id="shiftBarsInput" type="number" min="1" max="16" value="2" />
+      </div>
+      <div class="mini-field">
+        <label id="countInLabel" for="countInSelect">预备拍（Count-in）</label>
+        <select id="countInSelect">
+          <option value="0">关闭（直接开始）</option>
+          <option value="1">1 小节预备拍</option>
+          <option value="2">2 小节预备拍</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 鼓点音色、细分与 Swing -->
+  <div class="card">
+    <div class="card-header">
+      <span id="kitCardTitle" class="card-title">鼓点音色选择</span>
+      <span id="kitCardSub" class="card-sub">节拍与手法听感</span>
+    </div>
+    <div id="kitGroup" class="pill-group" style="margin-bottom: 12px;">
+      <button class="pill-btn active" data-kit="synth" type="button">电子敲击</button>
+      <button class="pill-btn" data-kit="wood" type="button">木鱼边击</button>
+      <button class="pill-btn" data-kit="acoustic" type="button">原声军鼓</button>
+      <button class="pill-btn" data-kit="hi_lo" type="button">高低军鼓</button>
+    </div>
+
+    <div class="card-header" style="margin-bottom: 6px;">
+      <span id="subdivCardTitle" class="card-title">节奏细分（Subdivision）</span>
+      <span id="subdivCardSub" class="card-sub">每拍切分</span>
+    </div>
+    <div id="subdivGroup" class="pill-group" style="margin-bottom: 12px;">
+      <button class="pill-btn active" data-sub="1" type="button">四分</button>
+      <button class="pill-btn" data-sub="2" type="button">八分</button>
+      <button class="pill-btn" data-sub="3" type="button">三连音</button>
+      <button class="pill-btn" data-sub="4" type="button">十六分</button>
+    </div>
+
+    <div class="card-header" style="margin-bottom: 4px;">
+      <span id="swingLabel" class="card-title">摇摆律动（Swing / Shuffle）</span>
+      <span id="swingValueText" class="card-sub">0%（直拍）</span>
+    </div>
+    <input id="swingSlider" type="range" min="0" max="66" value="0" />
+  </div>
+
+  <!-- 静音小节 & 自动提速 -->
+  <div class="card">
+    <div class="switch-row">
+      <div>
+        <div id="gapTitle" class="switch-label">静音小节测拍（Gap Click）</div>
+        <div id="gapDesc" class="switch-desc">响若干小节后静音，检测内拍稳不稳</div>
+      </div>
+      <button id="gapToggle" class="toggle" type="button" aria-label="Toggle Gap Click"></button>
+    </div>
+    <div class="mini-grid">
+      <div class="mini-field">
+        <label id="playBarsLabel" for="playBarsInput">发声小节</label>
+        <input id="playBarsInput" type="number" min="1" max="16" value="3" />
+      </div>
+      <div class="mini-field">
+        <label id="muteBarsLabel" for="muteBarsInput">静音小节</label>
+        <input id="muteBarsInput" type="number" min="1" max="16" value="1" />
+      </div>
+      <div class="mini-field">
+        <label id="gapStateLabel">当前状态</label>
+        <input id="gapStateReadout" type="text" value="关闭" readonly />
+      </div>
+    </div>
+
+    <div class="switch-row" style="margin-top: 8px;">
+      <div>
+        <div id="speedTitle" class="switch-label">自动渐进提速（Speed Trainer）</div>
+        <div id="speedDesc" class="switch-desc">按设定小节数自动提升 BPM</div>
+      </div>
+      <button id="speedToggle" class="toggle" type="button" aria-label="Toggle Speed Trainer"></button>
+    </div>
+    <div class="mini-grid">
+      <div class="mini-field">
+        <label id="stepBpmLabel" for="stepBpmInput">每次加 (BPM)</label>
+        <input id="stepBpmInput" type="number" min="1" max="30" value="5" />
+      </div>
+      <div class="mini-field">
+        <label id="everyBarsLabel" for="everyBarsInput">每几小节</label>
+        <input id="everyBarsInput" type="number" min="1" max="32" value="4" />
+      </div>
+      <div class="mini-field">
+        <label id="targetBpmLabel" for="targetBpmInput">目标 BPM</label>
+        <input id="targetBpmInput" type="number" min="40" max="260" value="140" />
+      </div>
+    </div>
+
+    <div class="status-banner">
+      <span><span id="statusPrefix">练习状态：</span><strong id="liveStatus" class="live-state">待机</strong></span>
+      <span id="speedProgress">提速未开启</span>
+    </div>
+  </div>
+
+  <!-- 核心基本功 Rudiments & 自定义手型 & 左右手独立静音 -->
+  <div class="card">
+    <div class="card-header">
+      <span id="rudimentCardTitle" class="card-title">基本功手法（Rudiments）</span>
+      <div class="pill-group">
+        <button id="muteRBtn" class="pill-btn" type="button">R 发声</button>
+        <button id="muteLBtn" class="pill-btn" type="button">L 发声</button>
+        <button id="rudimentSoundToggle" class="pill-btn active" type="button">总鼓声：开</button>
+      </div>
+    </div>
+
+    <div class="mini-field" style="margin-bottom: 8px;">
+      <label id="rudimentSelectLabel" for="rudimentSelect">选择练习型</label>
+      <select id="rudimentSelect">
+        <option value="single">Single Stroke Roll（单跳：R L R L R L R L）</option>
+        <option value="double">Double Stroke Roll（双跳：R R L L R R L L）</option>
+        <option value="paradiddle">Single Paradiddle（复合跳：R L R R L R L L）</option>
+        <option value="rev_paradiddle">Reverse Paradiddle（反向复合跳：R R L R L L R L）</option>
+        <option value="double_para">Double Paradiddle（双复合跳：R L R L R R L R L R L L）</option>
+        <option value="five_stroke">Five Stroke Roll（五击滚奏：R R L L R L L R R L）</option>
+        <option value="flam_tap">Flam Tap（装饰音双击：R L R L R L R L）</option>
+        <option value="paradiddle_diddle">Paradiddle-diddle（六连复合跳：R L R R L L R L R R L L）</option>
+        <option value="custom">Custom Sticking（自定义左右手序列）</option>
+      </select>
+    </div>
+
+    <div id="customStickContainer" class="custom-stick-row" style="display:none;">
+      <input id="customStickInput" type="text" maxlength="24" placeholder="输入 R 和 L，如 RLRRLRLL" value="RLRRLRLL" />
+      <button id="applyCustomStickBtn" class="pill-btn active" type="button">应用</button>
+    </div>
+
+    <div id="stickingStrip" class="sticking-strip"></div>
+
+    <div class="legend-row">
+      <span><i style="background: var(--right-hand);"></i><span id="legendRight">R 右手</span></span>
+      <span><i style="background: var(--left-hand);"></i><span id="legendLeft">L 左手</span></span>
+      <span><i style="background: var(--warn);"></i><span id="legendAccent">重音拍</span></span>
+    </div>
+  </div>
+
+  <div class="dock-bar">
+    <button id="tapBtn" class="tap-btn" type="button">TAP 测速</button>
+    <button id="playBtn" class="play-btn" type="button">开始练习</button>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "drummer_trainer_settings_v1";
+
+    const I18N = {
+      zh: {
+        docTitle: "鼓手基本功与节奏练习器",
+        langBtn: "EN",
+        appTitle: "鼓手基本功与节奏练习器",
+        appSubtitle: "全功能版 · 自动保存 · 零漂移时钟",
+        audioUnlock: "点击播放解锁声音",
+        audioReady: "音频已就绪",
+        presetCardTitle: "快捷训练预设（Presets）",
+        resetBtn: "恢复默认",
+        presetWarmup: "双跳热身 80",
+        presetGap: "Gap 稳拍挑战",
+        presetSpeed: "复合跳提速",
+        tempoCardTitle: "速度、拍号与重拍切换",
+        barCounter: (n) => `第 ${n} 小节`,
+        countInBar: (n, total) => `预备拍 ${n}/${total}`,
+        meterLabel: "拍号",
+        accentOn: "重音",
+        accentOff: "普通",
+        accentHint: "点按任一拍格子可切换该拍是否为“重音”，练习重音位移。",
+        autoShiftTitle: "重音自动顺移（Auto Accent Shift）",
+        autoShiftDesc: "每隔设定小节数，重音自动向后移一拍",
+        shiftBarsLabel: "每几小节顺移",
+        countInLabel: "预备拍（Count-in）",
+        countInOptions: {
+          "0": "关闭（直接开始）",
+          "1": "1 小节预备拍",
+          "2": "2 小节预备拍"
+        },
+        kitCardTitle: "鼓点音色选择",
+        kitCardSub: "节拍与手法听感",
+        kits: {
+          synth: "电子敲击",
+          wood: "木鱼边击",
+          acoustic: "原声军鼓",
+          hi_lo: "高低军鼓"
+        },
+        subdivCardTitle: "节奏细分（Subdivision）",
+        subdivCardSub: "每拍切分",
+        subdivs: {
+          "1": "四分",
+          "2": "八分",
+          "3": "三连音",
+          "4": "十六分"
+        },
+        swingLabel: "摇摆律动（Swing / Shuffle）",
+        swingStraight: "0%（直拍）",
+        swingVal: (v) => `${v}% 摇摆`,
+        gapTitle: "静音小节测拍（Gap Click）",
+        gapDesc: "响若干小节后静音，检测内拍稳不稳",
+        playBarsLabel: "发声小节",
+        muteBarsLabel: "静音小节",
+        gapStateLabel: "当前状态",
+        gapClosed: "关闭",
+        gapEnabled: "已开启",
+        gapPlaying: "发声中",
+        gapMuted: "静音中",
+        speedTitle: "自动渐进提速（Speed Trainer）",
+        speedDesc: "按设定小节数自动提升 BPM",
+        stepBpmLabel: "每次加 (BPM)",
+        everyBarsLabel: "每几小节",
+        targetBpmLabel: "目标 BPM",
+        statusPrefix: "练习状态：",
+        statusStandby: "待机",
+        statusCountIn: "预备拍倒数中...",
+        statusPracticing: "练习中",
+        statusGapPlay: "发声中",
+        statusGapMute: "静音测拍（稳住内拍）",
+        speedOff: "提速未开启",
+        speedInfo: (target, bars, step) => `目标 ${target} BPM · 每 ${bars} 小节 +${step}`,
+        rudimentCardTitle: "基本功手法（Rudiments）",
+        muteROn: "R 发声",
+        muteROff: "R 静音",
+        muteLOn: "L 发声",
+        muteLOff: "L 静音",
+        rudimentSoundOn: "总鼓声：开",
+        rudimentSoundOff: "总鼓声：关",
+        rudimentSelectLabel: "选择练习型",
+        customPlaceholder: "输入 R 和 L，如 RLRRLRLL",
+        applyBtn: "应用",
+        rudiments: {
+          single: "Single Stroke Roll（单跳：R L R L R L R L）",
+          double: "Double Stroke Roll（双跳：R R L L R R L L）",
+          paradiddle: "Single Paradiddle（复合跳：R L R R L R L L）",
+          rev_paradiddle: "Reverse Paradiddle（反向复合跳：R R L R L L R L）",
+          double_para: "Double Paradiddle（双复合跳：R L R L R R L R L R L L）",
+          five_stroke: "Five Stroke Roll（五击滚奏：R R L L R L L R R L）",
+          flam_tap: "Flam Tap（装饰音双击：R L R L R L R L）",
+          paradiddle_diddle: "Paradiddle-diddle（六连复合跳：R L R R L L R L R R L L）",
+          custom: "Custom Sticking（自定义左右手序列）"
+        },
+        legendRight: "R 右手",
+        legendLeft: "L 左手",
+        legendAccent: "重音拍",
+        tapBtn: "TAP 测速",
+        startBtn: "开始练习",
+        stopBtn: "停止练习"
+      },
+      en: {
+        docTitle: "Drummer Rudiment & Rhythm Trainer",
+        langBtn: "中文",
+        appTitle: "Drummer Rudiment Trainer",
+        appSubtitle: "Full Edition · Auto-Save · Zero-Drift Clock",
+        audioUnlock: "Tap Start for Audio",
+        audioReady: "Audio Ready",
+        presetCardTitle: "Quick Practice Presets",
+        resetBtn: "Reset",
+        presetWarmup: "Double Warmup 80",
+        presetGap: "Gap Click Test",
+        presetSpeed: "Paradiddle Climb",
+        tempoCardTitle: "Tempo, Meter & Accent Shift",
+        barCounter: (n) => `Bar ${n}`,
+        countInBar: (n, total) => `Count-in ${n}/${total}`,
+        meterLabel: "Time Sig",
+        accentOn: "Accent",
+        accentOff: "Normal",
+        accentHint: "Tap any beat pad below to toggle accents and practice accent shifting.",
+        autoShiftTitle: "Auto Accent Shift",
+        autoShiftDesc: "Automatically rotate accents forward every N bars",
+        shiftBarsLabel: "Shift Every (Bars)",
+        countInLabel: "Count-in Bars",
+        countInOptions: {
+          "0": "Off (Start Immediately)",
+          "1": "1 Bar Count-in",
+          "2": "2 Bars Count-in"
+        },
+        kitCardTitle: "Sound Kit",
+        kitCardSub: "Click & sticking tone",
+        kits: {
+          synth: "Synth Click",
+          wood: "Woodblock",
+          acoustic: "Acoustic Snare",
+          hi_lo: "Hi / Lo Snare"
+        },
+        subdivCardTitle: "Subdivision",
+        subdivCardSub: "Notes per beat",
+        subdivs: {
+          "1": "Quarter",
+          "2": "Eighth",
+          "3": "Triplet",
+          "4": "16th"
+        },
+        swingLabel: "Swing / Shuffle Feel",
+        swingStraight: "0% (Straight)",
+        swingVal: (v) => `${v}% Swing`,
+        gapTitle: "Gap Click (Silent Bars)",
+        gapDesc: "Mute bars periodically to test internal timing",
+        playBarsLabel: "Play Bars",
+        muteBarsLabel: "Mute Bars",
+        gapStateLabel: "Gap Status",
+        gapClosed: "Off",
+        gapEnabled: "Ready",
+        gapPlaying: "Playing",
+        gapMuted: "Muted",
+        speedTitle: "Speed Trainer (Auto Tempo)",
+        speedDesc: "Increase BPM automatically every few bars",
+        stepBpmLabel: "+BPM Step",
+        everyBarsLabel: "Every Bars",
+        targetBpmLabel: "Target BPM",
+        statusPrefix: "Status: ",
+        statusStandby: "Standby",
+        statusCountIn: "Count-in...",
+        statusPracticing: "Practicing",
+        statusGapPlay: "Click On",
+        statusGapMute: "Silent Bar (Hold Groove)",
+        speedOff: "Speed Trainer Off",
+        speedInfo: (target, bars, step) => `Target ${target} BPM · +${step} every ${bars} bars`,
+        rudimentCardTitle: "Drum Rudiments",
+        muteROn: "R On",
+        muteROff: "R Muted",
+        muteLOn: "L On",
+        muteLOff: "L Muted",
+        rudimentSoundOn: "Stick Sound: ON",
+        rudimentSoundOff: "Stick Sound: OFF",
+        rudimentSelectLabel: "Select Rudiment",
+        customPlaceholder: "Enter R & L, e.g. RLRRLRLL",
+        applyBtn: "Apply",
+        rudiments: {
+          single: "Single Stroke Roll (R L R L R L R L)",
+          double: "Double Stroke Roll (R R L L R R L L)",
+          paradiddle: "Single Paradiddle (R L R R L R L L)",
+          rev_paradiddle: "Reverse Paradiddle (R R L R L L R L)",
+          double_para: "Double Paradiddle (R L R L R R L R L R L L)",
+          five_stroke: "Five Stroke Roll (R R L L R L L R R L)",
+          flam_tap: "Flam Tap (R L R L R L R L)",
+          paradiddle_diddle: "Paradiddle-diddle (R L R R L L R L R R L L)",
+          custom: "Custom Sticking Pattern"
+        },
+        legendRight: "R Right Hand",
+        legendLeft: "L Left Hand",
+        legendAccent: "Accented Beat",
+        tapBtn: "TAP Tempo",
+        startBtn: "Start",
+        stopBtn: "Stop"
+      }
+    };
+
+    const BASE_RUDIMENTS = {
+      single: ["R", "L", "R", "L", "R", "L", "R", "L"],
+      double: ["R", "R", "L", "L", "R", "R", "L", "L"],
+      paradiddle: ["R", "L", "R", "R", "L", "R", "L", "L"],
+      rev_paradiddle: ["R", "R", "L", "R", "L", "L", "R", "L"],
+      double_para: ["R", "L", "R", "L", "R", "R", "L", "R", "L", "R", "L", "L"],
+      five_stroke: ["R", "R", "L", "L", "R", "L", "L", "R", "R", "L"],
+      flam_tap: ["R", "L", "R", "L", "R", "L", "R", "L"],
+      paradiddle_diddle: ["R", "L", "R", "R", "L", "L", "R", "L", "R", "R", "L", "L"]
+    };
+
+    function defaultAccentsForMeter(meter) {
+      if (meter === 6) return [true, false, false, true, false, false];
+      if (meter === 5) return [true, false, false, true, false];
+      if (meter === 7) return [true, false, false, true, false, true, false];
+      return Array.from({ length: meter }, (_, idx) => idx === 0);
+    }
+
+    const defaultState = {
+      lang: "zh",
+      bpm: 100,
+      beatsPerBar: 4,
+      accents: [true, false, false, false],
+      autoShiftEnabled: false,
+      shiftEveryBars: 2,
+      countInBars: 0,
+      kit: "synth",
+      subdivision: 1,
+      swing: 0,
+      gapEnabled: false,
+      playBars: 3,
+      muteBars: 1,
+      speedEnabled: false,
+      stepBpm: 5,
+      everyBars: 4,
+      targetBpm: 140,
+      rudimentKey: "single",
+      customPatternStr: "RLRRLRLL",
+      rudimentSound: true,
+      muteR: false,
+      muteL: false
+    };
+
+    const state = {
+      ...defaultState,
+      isPlaying: false,
+      currentBar: 1,
+      countInRemaining: 0,
+      stepCountInBar: 0,
+      rudimentStep: 0,
+      nextNoteTime: 0,
+      schedulerTimer: null,
+      practiceTimerInterval: null,
+      practiceSeconds: 0,
+      tapTimes: []
+    };
+
+    function saveSettings() {
+      try {
+        const toSave = {};
+        Object.keys(defaultState).forEach((k) => {
+          toSave[k] = state[k];
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      } catch (err) {}
+    }
+
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        Object.keys(defaultState).forEach((k) => {
+          if (parsed[k] !== undefined) {
+            state[k] = parsed[k];
+          }
+        });
+      } catch (err) {}
+    }
+
+    loadSettings();
+
+    let audioCtx = null;
+    let noiseBuffer = null;
+    let lastTouchEndTime = 0;
+
+    document.addEventListener("touchend", (e) => {
+      const now = Date.now();
+      if (now - lastTouchEndTime <= 300) {
+        if (e.cancelable) e.preventDefault();
+      }
+      lastTouchEndTime = now;
+    }, { passive: false });
+
+    const langToggleBtn = document.getElementById("langToggleBtn");
+    const bpmValue = document.getElementById("bpmValue");
+    const bpmSlider = document.getElementById("bpmSlider");
+    const bpmMinus = document.getElementById("bpmMinus");
+    const bpmPlus = document.getElementById("bpmPlus");
+    const beatsRow = document.getElementById("beatsRow");
+    const barCounter = document.getElementById("barCounter");
+    const timerDisplay = document.getElementById("timerDisplay");
+    const audioStatus = document.getElementById("audioStatus");
+    const playBtn = document.getElementById("playBtn");
+    const tapBtn = document.getElementById("tapBtn");
+    const autoShiftToggle = document.getElementById("autoShiftToggle");
+    const shiftBarsInput = document.getElementById("shiftBarsInput");
+    const countInSelect = document.getElementById("countInSelect");
+    const swingSlider = document.getElementById("swingSlider");
+    const swingValueText = document.getElementById("swingValueText");
+    const gapToggle = document.getElementById("gapToggle");
+    const playBarsInput = document.getElementById("playBarsInput");
+    const muteBarsInput = document.getElementById("muteBarsInput");
+    const gapStateReadout = document.getElementById("gapStateReadout");
+    const speedToggle = document.getElementById("speedToggle");
+    const stepBpmInput = document.getElementById("stepBpmInput");
+    const everyBarsInput = document.getElementById("everyBarsInput");
+    const targetBpmInput = document.getElementById("targetBpmInput");
+    const liveStatus = document.getElementById("liveStatus");
+    const speedProgress = document.getElementById("speedProgress");
+    const rudimentSelect = document.getElementById("rudimentSelect");
+    const customStickContainer = document.getElementById("customStickContainer");
+    const customStickInput = document.getElementById("customStickInput");
+    const applyCustomStickBtn = document.getElementById("applyCustomStickBtn");
+    const muteRBtn = document.getElementById("muteRBtn");
+    const muteLBtn = document.getElementById("muteLBtn");
+    const rudimentSoundToggle = document.getElementById("rudimentSoundToggle");
+    const stickingStrip = document.getElementById("stickingStrip");
+
+    function t() {
+      return I18N[state.lang];
+    }
+
+    function getCurrentPattern() {
+      if (state.rudimentKey === "custom") {
+        const cleaned = (state.customPatternStr || "RLRL").toUpperCase().replace(/[^RL]/g, "");
+        return cleaned.length > 0 ? cleaned.split("") : ["R", "L"];
+      }
+      return BASE_RUDIMENTS[state.rudimentKey] || BASE_RUDIMENTS.single;
+    }
+
+    function syncControlsFromState() {
+      setBpm(state.bpm, false);
+      document.querySelectorAll("#meterGroup .pill-btn").forEach((b) => {
+        b.classList.toggle("active", Number(b.dataset.meter) === state.beatsPerBar);
+      });
+      document.querySelectorAll("#kitGroup .pill-btn").forEach((b) => {
+        b.classList.toggle("active", b.dataset.kit === state.kit);
+      });
+      document.querySelectorAll("#subdivGroup .pill-btn").forEach((b) => {
+        b.classList.toggle("active", Number(b.dataset.sub) === state.subdivision);
+      });
+      autoShiftToggle.classList.toggle("on", state.autoShiftEnabled);
+      shiftBarsInput.value = state.shiftEveryBars;
+      countInSelect.value = String(state.countInBars);
+      swingSlider.value = state.swing;
+      gapToggle.classList.toggle("on", state.gapEnabled);
+      playBarsInput.value = state.playBars;
+      muteBarsInput.value = state.muteBars;
+      speedToggle.classList.toggle("on", state.speedEnabled);
+      stepBpmInput.value = state.stepBpm;
+      everyBarsInput.value = state.everyBars;
+      targetBpmInput.value = state.targetBpm;
+      rudimentSelect.value = state.rudimentKey;
+      customStickInput.value = state.customPatternStr;
+      customStickContainer.style.display = state.rudimentKey === "custom" ? "flex" : "none";
+      rudimentSoundToggle.classList.toggle("active", state.rudimentSound);
+      muteRBtn.classList.toggle("warn-active", state.muteR);
+      muteLBtn.classList.toggle("warn-active", state.muteL);
+      renderBeatPads();
+      renderSticking();
+      applyLanguage();
+    }
+
+    function applyLanguage() {
+      const dict = t();
+      document.documentElement.lang = state.lang === "zh" ? "zh-CN" : "en";
+      document.title = dict.docTitle;
+      langToggleBtn.textContent = dict.langBtn;
+      document.getElementById("appTitle").textContent = dict.appTitle;
+      document.getElementById("appSubtitle").textContent = dict.appSubtitle;
+
+      if (audioCtx && audioCtx.state === "running") {
+        audioStatus.textContent = dict.audioReady;
+      } else {
+        audioStatus.textContent = dict.audioUnlock;
+      }
+
+      document.getElementById("presetCardTitle").textContent = dict.presetCardTitle;
+      document.getElementById("resetSettingsBtn").textContent = dict.resetBtn;
+      document.getElementById("presetWarmup").textContent = dict.presetWarmup;
+      document.getElementById("presetGap").textContent = dict.presetGap;
+      document.getElementById("presetSpeed").textContent = dict.presetSpeed;
+
+      document.getElementById("tempoCardTitle").textContent = dict.tempoCardTitle;
+      barCounter.textContent = dict.barCounter(state.currentBar);
+      document.getElementById("meterLabel").textContent = dict.meterLabel;
+      document.getElementById("accentHint").textContent = dict.accentHint;
+
+      document.getElementById("autoShiftTitle").textContent = dict.autoShiftTitle;
+      document.getElementById("autoShiftDesc").textContent = dict.autoShiftDesc;
+      document.getElementById("shiftBarsLabel").textContent = dict.shiftBarsLabel;
+      document.getElementById("countInLabel").textContent = dict.countInLabel;
+      Array.from(countInSelect.options).forEach((opt) => {
+        if (dict.countInOptions[opt.value]) {
+          opt.textContent = dict.countInOptions[opt.value];
+        }
+      });
+
+      document.getElementById("kitCardTitle").textContent = dict.kitCardTitle;
+      document.getElementById("kitCardSub").textContent = dict.kitCardSub;
+      document.querySelectorAll("#kitGroup .pill-btn").forEach((btn) => {
+        btn.textContent = dict.kits[btn.dataset.kit];
+      });
+
+      document.getElementById("subdivCardTitle").textContent = dict.subdivCardTitle;
+      document.getElementById("subdivCardSub").textContent = dict.subdivCardSub;
+      document.querySelectorAll("#subdivGroup .pill-btn").forEach((btn) => {
+        btn.textContent = dict.subdivs[btn.dataset.sub];
+      });
+
+      document.getElementById("swingLabel").textContent = dict.swingLabel;
+      swingValueText.textContent = state.swing === 0 ? dict.swingStraight : dict.swingVal(state.swing);
+
+      document.getElementById("gapTitle").textContent = dict.gapTitle;
+      document.getElementById("gapDesc").textContent = dict.gapDesc;
+      document.getElementById("playBarsLabel").textContent = dict.playBarsLabel;
+      document.getElementById("muteBarsLabel").textContent = dict.muteBarsLabel;
+      document.getElementById("gapStateLabel").textContent = dict.gapStateLabel;
+
+      if (!state.isPlaying) {
+        gapStateReadout.value = state.gapEnabled ? dict.gapEnabled : dict.gapClosed;
+        liveStatus.textContent = dict.statusStandby;
+      }
+
+      document.getElementById("speedTitle").textContent = dict.speedTitle;
+      document.getElementById("speedDesc").textContent = dict.speedDesc;
+      document.getElementById("stepBpmLabel").textContent = dict.stepBpmLabel;
+      document.getElementById("everyBarsLabel").textContent = dict.everyBarsLabel;
+      document.getElementById("targetBpmLabel").textContent = dict.targetBpmLabel;
+      document.getElementById("statusPrefix").textContent = dict.statusPrefix;
+
+      speedProgress.textContent = state.speedEnabled
+        ? dict.speedInfo(state.targetBpm, state.everyBars, state.stepBpm)
+        : dict.speedOff;
+
+      document.getElementById("rudimentCardTitle").textContent = dict.rudimentCardTitle;
+      muteRBtn.textContent = state.muteR ? dict.muteROff : dict.muteROn;
+      muteLBtn.textContent = state.muteL ? dict.muteLOff : dict.muteLOn;
+      rudimentSoundToggle.textContent = state.rudimentSound ? dict.rudimentSoundOn : dict.rudimentSoundOff;
+      document.getElementById("rudimentSelectLabel").textContent = dict.rudimentSelectLabel;
+      customStickInput.placeholder = dict.customPlaceholder;
+      applyCustomStickBtn.textContent = dict.applyBtn;
+
+      Array.from(rudimentSelect.options).forEach((opt) => {
+        if (dict.rudiments[opt.value]) {
+          opt.textContent = dict.rudiments[opt.value];
+        }
+      });
+
+      document.getElementById("legendRight").textContent = dict.legendRight;
+      document.getElementById("legendLeft").textContent = dict.legendLeft;
+      document.getElementById("legendAccent").textContent = dict.legendAccent;
+
+      tapBtn.textContent = dict.tapBtn;
+      playBtn.textContent = state.isPlaying ? dict.stopBtn : dict.startBtn;
+
+      renderBeatPads();
+    }
+
+    function createNoiseBuffer(ctx) {
+      const length = ctx.sampleRate * 0.25;
+      const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < length; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      return buffer;
+    }
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+        noiseBuffer = createNoiseBuffer(audioCtx);
+      }
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+      if (audioCtx && audioCtx.state === "running") {
+        audioStatus.textContent = t().audioReady;
+        audioStatus.classList.add("ready");
+      }
+    }
+
+    function renderBeatPads() {
+      const dict = t();
+      beatsRow.style.gridTemplateColumns = `repeat(${state.beatsPerBar}, 1fr)`;
+      beatsRow.innerHTML = "";
+      for (let i = 0; i < state.beatsPerBar; i++) {
+        const isAcc = Boolean(state.accents[i]);
+        const pad = document.createElement("button");
+        pad.type = "button";
+        pad.className = "beat-pad" + (isAcc ? " accent-on" : "");
+        pad.dataset.beat = i;
+        pad.innerHTML = `<span class="b-num">${i + 1}</span><span class="b-tag">${isAcc ? dict.accentOn : dict.accentOff}</span>`;
+        pad.addEventListener("click", () => {
+          ensureAudio();
+          state.accents[i] = !state.accents[i];
+          saveSettings();
+          renderBeatPads();
+        });
+        beatsRow.appendChild(pad);
+      }
+    }
+
+    function renderSticking() {
+      const pattern = getCurrentPattern();
+      stickingStrip.style.gridTemplateColumns = `repeat(${Math.min(pattern.length, 8)}, 1fr)`;
+      stickingStrip.innerHTML = "";
+      pattern.forEach((hand, idx) => {
+        const cell = document.createElement("div");
+        const isMutedHand = (hand === "R" && state.muteR) || (hand === "L" && state.muteL);
+        cell.className = "stick-cell" + (isMutedHand ? " hand-muted" : "");
+        cell.dataset.idx = idx;
+        cell.innerHTML = `<div class="hand ${hand}">${hand}</div><div class="step-idx">${idx + 1}</div>`;
+        stickingStrip.appendChild(cell);
+      });
+    }
+
+    function setBpm(newBpm, persist = true) {
+      state.bpm = Math.max(40, Math.min(260, Math.round(newBpm)));
+      bpmValue.textContent = state.bpm;
+      bpmSlider.value = Math.min(240, state.bpm);
+      if (persist) saveSettings();
+    }
+
+    function rotateAccentsForward() {
+      if (!state.accents || state.accents.length <= 1) return;
+      const last = state.accents.pop();
+      state.accents.unshift(last);
+      renderBeatPads();
+    }
+
+    function isBarMuted(barNum) {
+      if (!state.gapEnabled) return false;
+      const cycle = state.playBars + state.muteBars;
+      if (cycle <= 0) return false;
+      const posInCycle = ((barNum - 1) % cycle) + 1;
+      return posInCycle > state.playBars;
+    }
+
+    function playClickSound(time, isAccent, isSub) {
+      if (!audioCtx || audioCtx.state !== "running") return;
+
+      if (state.kit === "wood") {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        const freq = isSub ? 520 : (isAccent ? 980 : 740);
+        const peak = isSub ? 0.08 : (isAccent ? 0.32 : 0.18);
+        osc.frequency.setValueAtTime(freq, time);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.65, time + 0.045);
+        gain.gain.setValueAtTime(peak, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(time);
+        osc.stop(time + 0.055);
+        return;
+      }
+
+      if (state.kit === "acoustic") {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "triangle";
+        const freq = isSub ? 320 : (isAccent ? 240 : 190);
+        const peak = isSub ? 0.07 : (isAccent ? 0.28 : 0.16);
+        osc.frequency.setValueAtTime(freq * 1.4, time);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.5, time + 0.07);
+        gain.gain.setValueAtTime(peak, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.075);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(time);
+        osc.stop(time + 0.08);
+
+        if (!isSub && noiseBuffer) {
+          const noise = audioCtx.createBufferSource();
+          noise.buffer = noiseBuffer;
+          const filter = audioCtx.createBiquadFilter();
+          filter.type = "highpass";
+          filter.frequency.setValueAtTime(isAccent ? 1800 : 2400, time);
+          const nGain = audioCtx.createGain();
+          nGain.gain.setValueAtTime(isAccent ? 0.16 : 0.07, time);
+          nGain.gain.exponentialRampToValueAtTime(0.001, time + 0.06);
+          noise.connect(filter);
+          filter.connect(nGain);
+          nGain.connect(audioCtx.destination);
+          noise.start(time);
+          noise.stop(time + 0.065);
+        }
+        return;
+      }
+
+      if (state.kit === "hi_lo") {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        const freq = isSub ? 460 : (isAccent ? 1050 : 620);
+        const peak = isSub ? 0.07 : (isAccent ? 0.28 : 0.18);
+        osc.frequency.setValueAtTime(freq, time);
+        gain.gain.setValueAtTime(peak, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.06);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(time);
+        osc.stop(time + 0.065);
+        return;
+      }
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      if (isSub) {
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(620, time);
+        gain.gain.setValueAtTime(0.08, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.035);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(time);
+        osc.stop(time + 0.04);
+      } else {
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(isAccent ? 1180 : 820, time);
+        gain.gain.setValueAtTime(isAccent ? 0.30 : 0.18, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.06);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(time);
+        osc.stop(time + 0.065);
+      }
+    }
+
+    function playSnareHit(time, hand) {
+      if (!audioCtx || audioCtx.state !== "running" || !state.rudimentSound) return;
+      if (hand === "R" && state.muteR) return;
+      if (hand === "L" && state.muteL) return;
+
+      if (state.kit === "wood") {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        const freq = hand === "R" ? 680 : 490;
+        osc.frequency.setValueAtTime(freq, time);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.7, time + 0.04);
+        gain.gain.setValueAtTime(0.14, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.045);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(time);
+        osc.stop(time + 0.05);
+        return;
+      }
+
+      if (state.kit === "acoustic" && noiseBuffer) {
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.setValueAtTime(hand === "R" ? 2600 : 1700, time);
+        filter.Q.setValueAtTime(1.4, time);
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(hand === "R" ? 0.16 : 0.12, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.07);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        noise.start(time);
+        noise.stop(time + 0.075);
+        return;
+      }
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = state.kit === "hi_lo" ? "sine" : "triangle";
+      const baseFreq = hand === "R" ? 250 : 175;
+      osc.frequency.setValueAtTime(baseFreq, time);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.55, time + 0.07);
+      gain.gain.setValueAtTime(0.16, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.075);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(time);
+      osc.stop(time + 0.08);
+    }
+
+    function updateVisuals(beatIdx, barIdx, muted, rudIdx, isCountIn, countInCur, countInTot) {
+      const dict = t();
+      if (isCountIn) {
+        barCounter.textContent = dict.countInBar(countInCur, countInTot);
+      } else {
+        barCounter.textContent = dict.barCounter(barIdx);
+      }
+
+      const pads = beatsRow.querySelectorAll(".beat-pad");
+      pads.forEach((p, i) => {
+        p.classList.toggle("active", i === beatIdx && !muted);
+        p.classList.toggle("muted-bar", muted);
+      });
+
+      const cells = stickingStrip.querySelectorAll(".stick-cell");
+      cells.forEach((c, i) => {
+        c.classList.toggle("active", !isCountIn && i === rudIdx);
+      });
+
+      if (isCountIn) {
+        liveStatus.textContent = dict.statusCountIn;
+        liveStatus.className = "mute-state";
+      } else if (state.gapEnabled) {
+        gapStateReadout.value = muted ? dict.gapMuted : dict.gapPlaying;
+        liveStatus.textContent = muted ? dict.statusGapMute : dict.statusGapPlay;
+        liveStatus.className = muted ? "mute-state" : "live-state";
+      } else {
+        gapStateReadout.value = dict.gapClosed;
+        liveStatus.textContent = dict.statusPracticing;
+        liveStatus.className = "live-state";
+      }
+
+      if (state.speedEnabled) {
+        speedProgress.textContent = dict.speedInfo(state.targetBpm, state.everyBars, state.stepBpm);
+      } else {
+        speedProgress.textContent = dict.speedOff;
+      }
+    }
+
+    function getStepDuration(stepIndexInBar) {
+      const baseStep = 60.0 / state.bpm / state.subdivision;
+      if (state.swing > 0 && (state.subdivision === 2 || state.subdivision === 4)) {
+        const swingRatio = (state.swing / 100) * 0.5;
+        const isEvenStep = stepIndexInBar % 2 === 0;
+        return isEvenStep ? baseStep * (1 + swingRatio) : baseStep * (1 - swingRatio);
+      }
+      return baseStep;
+    }
+
+    function scheduleStep(time) {
+      const isCountIn = state.countInRemaining > 0;
+      const stepsPerBeat = isCountIn ? 1 : state.subdivision;
+      const isMainBeat = state.stepCountInBar % stepsPerBeat === 0;
+      const beatInBar = Math.floor(state.stepCountInBar / stepsPerBeat);
+      const isBeatAccent = isCountIn ? (beatInBar === 0) : Boolean(state.accents[beatInBar]);
+      const muted = isCountIn ? false : isBarMuted(state.currentBar);
+
+      if (!muted) {
+        if (isMainBeat) {
+          playClickSound(time, isBeatAccent, false);
+        } else if (stepsPerBeat > 1) {
+          playClickSound(time, false, true);
+        }
+      }
+
+      const pattern = getCurrentPattern();
+      const hand = pattern[state.rudimentStep % pattern.length];
+      if (!isCountIn && !muted) {
+        playSnareHit(time, hand);
+      }
+
+      const drawBeat = beatInBar;
+      const drawBar = state.currentBar;
+      const drawRud = state.rudimentStep % pattern.length;
+      const drawCountInCur = state.countInBars - state.countInRemaining + 1;
+      const drawCountInTot = state.countInBars;
+      const delayMs = Math.max(0, (time - audioCtx.currentTime) * 1000);
+
+      setTimeout(() => {
+        if (state.isPlaying) {
+          updateVisuals(drawBeat, drawBar, muted, drawRud, isCountIn, drawCountInCur, drawCountInTot);
+        }
+      }, delayMs);
+
+      const stepDur = isCountIn ? (60.0 / state.bpm) : getStepDuration(state.stepCountInBar);
+      state.nextNoteTime += stepDur;
+
+      if (!isCountIn) {
+        state.rudimentStep++;
+      }
+      state.stepCountInBar++;
+
+      const totalStepsInBar = state.beatsPerBar * stepsPerBeat;
+      if (state.stepCountInBar >= totalStepsInBar) {
+        state.stepCountInBar = 0;
+        if (isCountIn) {
+          state.countInRemaining--;
+        } else {
+          state.currentBar++;
+          const completedBars = state.currentBar - 1;
+
+          if (state.autoShiftEnabled && completedBars % state.shiftEveryBars === 0) {
+            setTimeout(() => {
+              if (state.isPlaying) rotateAccentsForward();
+            }, delayMs);
+          }
+
+          if (state.speedEnabled && completedBars % state.everyBars === 0 && state.bpm < state.targetBpm) {
+            setBpm(Math.min(state.targetBpm, state.bpm + state.stepBpm), false);
+          }
+        }
+      }
+    }
+
+    function scheduler() {
+      if (!state.isPlaying || !audioCtx) return;
+      const lookahead = 0.1;
+      while (state.nextNoteTime < audioCtx.currentTime + lookahead) {
+        scheduleStep(state.nextNoteTime);
+      }
+    }
+
+    function formatElapsed(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, "0");
+      const s = String(sec % 60).padStart(2, "0");
+      return `${m}:${s}`;
+    }
+
+    function startPractice() {
+      ensureAudio();
+      state.isPlaying = true;
+      state.currentBar = 1;
+      state.countInRemaining = state.countInBars;
+      state.stepCountInBar = 0;
+      state.rudimentStep = 0;
+      state.practiceSeconds = 0;
+      timerDisplay.textContent = "00:00";
+      state.nextNoteTime = audioCtx.currentTime + 0.05;
+      playBtn.textContent = t().stopBtn;
+      playBtn.classList.add("playing");
+      state.schedulerTimer = setInterval(scheduler, 25);
+      state.practiceTimerInterval = setInterval(() => {
+        if (state.isPlaying) {
+          state.practiceSeconds++;
+          timerDisplay.textContent = formatElapsed(state.practiceSeconds);
+        }
+      }, 1000);
+    }
+
+    function stopPractice() {
+      state.isPlaying = false;
+      clearInterval(state.schedulerTimer);
+      clearInterval(state.practiceTimerInterval);
+      playBtn.textContent = t().startBtn;
+      playBtn.classList.remove("playing");
+      liveStatus.textContent = t().statusStandby;
+      liveStatus.className = "live-state";
+      gapStateReadout.value = state.gapEnabled ? t().gapEnabled : t().gapClosed;
+      beatsRow.querySelectorAll(".beat-pad").forEach((p) => p.classList.remove("active", "muted-bar"));
+      stickingStrip.querySelectorAll(".stick-cell").forEach((c) => c.classList.remove("active"));
+    }
+
+    langToggleBtn.addEventListener("click", () => {
+      state.lang = state.lang === "zh" ? "en" : "zh";
+      saveSettings();
+      applyLanguage();
+    });
+
+    playBtn.addEventListener("click", () => {
+      if (state.isPlaying) stopPractice();
+      else startPractice();
+    });
+
+    bpmSlider.addEventListener("input", (e) => setBpm(Number(e.target.value)));
+    bpmMinus.addEventListener("click", () => setBpm(state.bpm - 1));
+    bpmPlus.addEventListener("click", () => setBpm(state.bpm + 1));
+
+    let lastTapAcceptedAt = 0;
+    tapBtn.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      ensureAudio();
+      const now = performance.now();
+      if (now - lastTapAcceptedAt < 60) return;
+      lastTapAcceptedAt = now;
+
+      state.tapTimes = state.tapTimes.filter((t) => now - t < 2500);
+      state.tapTimes.push(now);
+      if (state.tapTimes.length >= 2) {
+        let sum = 0;
+        for (let i = 1; i < state.tapTimes.length; i++) {
+          sum += state.tapTimes[i] - state.tapTimes[i - 1];
+        }
+        const avgMs = sum / (state.tapTimes.length - 1);
+        if (avgMs > 0) setBpm(60000 / avgMs);
+      }
+    });
+
+    document.getElementById("meterGroup").addEventListener("click", (e) => {
+      const btn = e.target.closest(".pill-btn");
+      if (!btn) return;
+      document.querySelectorAll("#meterGroup .pill-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.beatsPerBar = Number(btn.dataset.meter);
+      state.accents = defaultAccentsForMeter(state.beatsPerBar);
+      state.stepCountInBar = 0;
+      saveSettings();
+      renderBeatPads();
+    });
+
+    autoShiftToggle.addEventListener("click", () => {
+      state.autoShiftEnabled = !state.autoShiftEnabled;
+      autoShiftToggle.classList.toggle("on", state.autoShiftEnabled);
+      saveSettings();
+    });
+
+    shiftBarsInput.addEventListener("change", () => {
+      state.shiftEveryBars = Math.max(1, Number(shiftBarsInput.value) || 2);
+      saveSettings();
+    });
+
+    countInSelect.addEventListener("change", () => {
+      state.countInBars = Number(countInSelect.value) || 0;
+      saveSettings();
+    });
+
+    document.getElementById("kitGroup").addEventListener("click", (e) => {
+      const btn = e.target.closest(".pill-btn");
+      if (!btn) return;
+      ensureAudio();
+      document.querySelectorAll("#kitGroup .pill-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.kit = btn.dataset.kit;
+      saveSettings();
+      playClickSound(audioCtx.currentTime + 0.01, true, false);
+    });
+
+    document.getElementById("subdivGroup").addEventListener("click", (e) => {
+      const btn = e.target.closest(".pill-btn");
+      if (!btn) return;
+      document.querySelectorAll("#subdivGroup .pill-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.subdivision = Number(btn.dataset.sub);
+      state.stepCountInBar = 0;
+      saveSettings();
+    });
+
+    swingSlider.addEventListener("input", () => {
+      state.swing = Number(swingSlider.value) || 0;
+      const dict = t();
+      swingValueText.textContent = state.swing === 0 ? dict.swingStraight : dict.swingVal(state.swing);
+      saveSettings();
+    });
+
+    gapToggle.addEventListener("click", () => {
+      state.gapEnabled = !state.gapEnabled;
+      gapToggle.classList.toggle("on", state.gapEnabled);
+      gapStateReadout.value = state.gapEnabled ? t().gapEnabled : t().gapClosed;
+      saveSettings();
+    });
+
+    playBarsInput.addEventListener("change", () => {
+      state.playBars = Math.max(1, Number(playBarsInput.value) || 3);
+      saveSettings();
+    });
+
+    muteBarsInput.addEventListener("change", () => {
+      state.muteBars = Math.max(1, Number(muteBarsInput.value) || 1);
+      saveSettings();
+    });
+
+    speedToggle.addEventListener("click", () => {
+      state.speedEnabled = !state.speedEnabled;
+      speedToggle.classList.toggle("on", state.speedEnabled);
+      speedProgress.textContent = state.speedEnabled
+        ? t().speedInfo(state.targetBpm, state.everyBars, state.stepBpm)
+        : t().speedOff;
+      saveSettings();
+    });
+
+    stepBpmInput.addEventListener("change", () => {
+      state.stepBpm = Math.max(1, Number(stepBpmInput.value) || 5);
+      saveSettings();
+    });
+
+    everyBarsInput.addEventListener("change", () => {
+      state.everyBars = Math.max(1, Number(everyBarsInput.value) || 4);
+      saveSettings();
+    });
+
+    targetBpmInput.addEventListener("change", () => {
+      state.targetBpm = Math.max(40, Number(targetBpmInput.value) || 140);
+      saveSettings();
+    });
+
+    rudimentSelect.addEventListener("change", () => {
+      state.rudimentKey = rudimentSelect.value;
+      state.rudimentStep = 0;
+      customStickContainer.style.display = state.rudimentKey === "custom" ? "flex" : "none";
+      saveSettings();
+      renderSticking();
+    });
+
+    applyCustomStickBtn.addEventListener("click", () => {
+      const cleaned = customStickInput.value.toUpperCase().replace(/[^RL]/g, "");
+      state.customPatternStr = cleaned.length > 0 ? cleaned : "RLRL";
+      customStickInput.value = state.customPatternStr;
+      state.rudimentStep = 0;
+      saveSettings();
+      renderSticking();
+    });
+
+    muteRBtn.addEventListener("click", () => {
+      state.muteR = !state.muteR;
+      muteRBtn.classList.toggle("warn-active", state.muteR);
+      muteRBtn.textContent = state.muteR ? t().muteROff : t().muteROn;
+      saveSettings();
+      renderSticking();
+    });
+
+    muteLBtn.addEventListener("click", () => {
+      state.muteL = !state.muteL;
+      muteLBtn.classList.toggle("warn-active", state.muteL);
+      muteLBtn.textContent = state.muteL ? t().muteLOff : t().muteLOn;
+      saveSettings();
+      renderSticking();
+    });
+
+    rudimentSoundToggle.addEventListener("click", () => {
+      state.rudimentSound = !state.rudimentSound;
+      rudimentSoundToggle.classList.toggle("active", state.rudimentSound);
+      rudimentSoundToggle.textContent = state.rudimentSound ? t().rudimentSoundOn : t().rudimentSoundOff;
+      saveSettings();
+    });
+
+    // Presets & Reset
+    document.getElementById("presetWarmup").addEventListener("click", () => {
+      if (state.isPlaying) stopPractice();
+      Object.assign(state, {
+        bpm: 80,
+        beatsPerBar: 4,
+        accents: [true, false, false, false],
+        autoShiftEnabled: false,
+        countInBars: 1,
+        subdivision: 2,
+        swing: 0,
+        gapEnabled: false,
+        speedEnabled: false,
+        rudimentKey: "double",
+        rudimentSound: true,
+        muteR: false,
+        muteL: false
+      });
+      saveSettings();
+      syncControlsFromState();
+    });
+
+    document.getElementById("presetGap").addEventListener("click", () => {
+      if (state.isPlaying) stopPractice();
+      Object.assign(state, {
+        bpm: 105,
+        beatsPerBar: 4,
+        accents: [true, false, false, false],
+        autoShiftEnabled: false,
+        countInBars: 1,
+        subdivision: 1,
+        swing: 0,
+        gapEnabled: true,
+        playBars: 3,
+        muteBars: 1,
+        speedEnabled: false,
+        rudimentKey: "single",
+        rudimentSound: true,
+        muteR: false,
+        muteL: false
+      });
+      saveSettings();
+      syncControlsFromState();
+    });
+
+    document.getElementById("presetSpeed").addEventListener("click", () => {
+      if (state.isPlaying) stopPractice();
+      Object.assign(state, {
+        bpm: 90,
+        beatsPerBar: 4,
+        accents: [true, false, false, false],
+        autoShiftEnabled: false,
+        countInBars: 1,
+        subdivision: 4,
+        swing: 0,
+        gapEnabled: false,
+        speedEnabled: true,
+        stepBpm: 5,
+        everyBars: 4,
+        targetBpm: 150,
+        rudimentKey: "paradiddle",
+        rudimentSound: true,
+        muteR: false,
+        muteL: false
+      });
+      saveSettings();
+      syncControlsFromState();
+    });
+
+    document.getElementById("resetSettingsBtn").addEventListener("click", () => {
+      if (state.isPlaying) stopPractice();
+      const keepLang = state.lang;
+      Object.assign(state, defaultState, { lang: keepLang });
+      saveSettings();
+      syncControlsFromState();
+    });
+
+    syncControlsFromState();
+  </script>
+</body>
+</html>

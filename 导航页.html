@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music Stuff — Practice & Training Tools</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: #181b22;
+      --card-hover: #1f242e;
+      --border: #2a2f3b;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1.25rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 640px;
+    }
+
+    header {
+      margin-bottom: 2.25rem;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.4rem;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .card:hover {
+      background-color: var(--card-hover);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .card-info h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+    }
+
+    .card-info p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.4;
+    }
+
+    .arrow {
+      color: var(--muted);
+      font-size: 1.25rem;
+      margin-left: 1rem;
+      transition: transform 0.15s ease, color 0.15s ease;
+    }
+
+    .card:hover .arrow {
+      color: var(--accent);
+      transform: translateX(3px);
+    }
+
+    footer {
+      margin-top: 3rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Music Stuff</h1>
+      <p class="subtitle">Interactive practice tools for chord progressions, scales, and voicings.</p>
+    </header>
+
+    <main class="grid">
+      <a class="card" href="./DrillBuddy_v1.1.html">
+        <div class="card-info">
+          <h2>DrillBuddy <span class="badge">v1.1</span></h2>
+          <p>Fretboard & scale trainer with J-Pop chord progressions, groove loop, and real-time note highlights.</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+
+      <a class="card" href="./keysbuddy.html">
+        <div class="card-info">
+          <h2>KeysBuddy <span class="badge">Keys</span></h2>
+          <p>Keyboard chord voicing, progression ear-training, and synth practice companion.</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+
+      <a class="card" href="./DrillBuddy_v1.html">
+        <div class="card-info">
+          <h2>DrillBuddy <span class="badge">v1.0</span></h2>
+          <p>Initial release of the fretboard and chord progression drill tool.</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+    </main>
+
+    <footer>
+      Hosted on GitHub Pages · JupitrisPotato/Music-Stuff
+    </footer>
+  </div>
+</body>
+</html>
