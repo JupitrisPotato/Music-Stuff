@@ -1,207 +1,338 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Music Stuff — Band Practice Hub</title>
+  <title>Music-Stuff — Band Training Tools</title>
   <style>
     :root {
-      --bg: #0f1115;
-      --card: #181b22;
-      --card-hover: #1f242e;
-      --border: #2a2f3b;
-      --text: #f3f4f6;
-      --muted: #9ca3af;
+      --bg: #0b0e14;
+      --card: #141923;
+      --card-hover: #1b2230;
+      --border: #2a3346;
+      --text: #eef2ff;
+      --muted: #8f9bb3;
       --accent: #38bdf8;
-      --section-label: #6b7280;
+      --green: #22c55e;
+      --orange: #fb923c;
+      --purple: #a78bfa;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
+      margin: 0;
+      padding: 24px 16px 48px;
+      background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2.5rem 1.25rem;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 640px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      max-width: 680px;
+      margin-inline: auto;
     }
 
     header {
-      margin-bottom: 2rem;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.35rem;
+      margin: 0;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.3px;
     }
 
     .subtitle {
+      margin: 4px 0 0;
+      font-size: 13px;
       color: var(--muted);
-      font-size: 0.95rem;
     }
 
-    .category {
-      margin-bottom: 1.75rem;
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
     }
 
-    .category-title {
-      font-size: 0.78rem;
+    .filter-btn {
+      padding: 7px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 13px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--section-label);
-      margin-bottom: 0.65rem;
-      padding-left: 0.2rem;
+      cursor: pointer;
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      color: #061018;
+      border-color: var(--accent);
     }
 
     .grid {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
     }
 
-    .card {
+    .tool-card {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background-color: var(--card);
+      gap: 12px;
+      padding: 15px 16px;
+      border-radius: 14px;
+      background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.1rem 1.35rem;
       text-decoration: none;
-      color: inherit;
-      transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+      color: var(--text);
+      transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
     }
 
-    .card:hover {
-      background-color: var(--card-hover);
+    .tool-card:hover {
+      background: var(--card-hover);
       border-color: var(--accent);
-      transform: translateY(-2px);
+      transform: translateY(-1px);
     }
 
-    .card-info h2 {
-      font-size: 1.08rem;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
+    .tool-card.latest {
+      border-color: rgba(56, 189, 248, 0.45);
+    }
+
+    .tool-left {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
+      background: #1b2230;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .tool-info { min-width: 0; }
+
+    .tool-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tool-name {
+      font-size: 15px;
+      font-weight: 800;
+      word-break: break-all;
     }
 
     .badge {
-      font-size: 0.72rem;
-      font-weight: 600;
-      padding: 0.15rem 0.5rem;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
       border-radius: 999px;
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent);
+      text-transform: uppercase;
     }
 
-    .badge-muted {
-      background: rgba(156, 163, 175, 0.15);
-      color: var(--muted);
+    .badge-latest {
+      background: rgba(34, 197, 94, 0.16);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.35);
     }
 
-    .card-info p {
+    .badge-ver {
+      background: rgba(167, 139, 250, 0.16);
+      color: #c4b5fd;
+      border: 1px solid rgba(167, 139, 250, 0.35);
+    }
+
+    .tool-desc {
+      margin-top: 4px;
+      font-size: 12px;
       color: var(--muted);
-      font-size: 0.86rem;
-      line-height: 1.4;
     }
 
     .arrow {
       color: var(--muted);
-      font-size: 1.2rem;
-      margin-left: 1rem;
-      transition: transform 0.15s ease, color 0.15s ease;
+      font-size: 16px;
+      font-weight: 700;
+      flex-shrink: 0;
     }
 
-    .card:hover .arrow {
-      color: var(--accent);
-      transform: translateX(3px);
-    }
-
-    footer {
-      margin-top: 2.5rem;
-      color: var(--muted);
-      font-size: 0.8rem;
+    .status-box {
+      padding: 24px;
       text-align: center;
+      border-radius: 14px;
+      background: var(--card);
+      border: 1px dashed var(--border);
+      color: var(--muted);
+      font-size: 13px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Music Stuff</h1>
-      <p class="subtitle">Interactive practice tools for rhythm, fretboard, and keys.</p>
-    </header>
+  <header>
+    <div>
+      <h1>Music-Stuff</h1>
+      <p class="subtitle">Auto-indexed Band Practice &amp; Groove Trainers</p>
+    </div>
+    <button id="toggleOldBtn" class="filter-btn active" type="button">Only Latest Versions</button>
+  </header>
 
-    <!-- Drums Category -->
-    <section class="category">
-      <div class="category-title">DrumsBuddy · Rhythm &amp; Rudiments</div>
-      <div class="grid">
-        <a class="card" href="./DrumsBuddyv1.4.html">
-          <div class="card-info">
-            <h2>DrumsBuddy <span class="badge">v1.4</span></h2>
-            <p>Rhythm groove trainer, subdivisions, and rudiment practice tool.</p>
+  <div id="statusBox" class="status-box">Loading tools from GitHub main branch...</div>
+  <div id="toolsGrid" class="grid"></div>
+
+  <script>
+    const OWNER = "JupitrisPotato";
+    const REPO = "Music-Stuff";
+    const BRANCH = "main";
+
+    let allTools = [];
+    let onlyLatest = true;
+
+    function parseToolMeta(filename) {
+      const lower = filename.toLowerCase();
+      let icon = "🎵";
+      let category = "Music Tool";
+      let family = filename.replace(/\.html$/i, "");
+
+      if (lower.includes("keys")) {
+        icon = "🎹";
+        category = "Keyboard & Synth Voicing Trainer";
+        family = "keysbuddy";
+      } else if (lower.includes("drill")) {
+        icon = "🎸";
+        category = "Bass & Guitar Fretboard Trainer";
+        family = "drillbuddy";
+      } else if (lower.includes("drum")) {
+        icon = "🥁";
+        category = "Drummer Rhythm & Rudiment Trainer";
+        family = "drumsbuddy";
+      }
+
+      const verMatch = filename.match(/v(\d+(?:\.\d+)*)/i);
+      const versionStr = verMatch ? `v${verMatch[1]}` : "v1";
+      const versionParts = verMatch
+        ? verMatch[1].split(".").map(Number)
+        : [1];
+
+      return {
+        filename,
+        icon,
+        category,
+        family,
+        versionStr,
+        versionParts,
+        isLatest: false
+      };
+    }
+
+    function compareVersions(a, b) {
+      const len = Math.max(a.length, b.length);
+      for (let i = 0; i < len; i++) {
+        const numA = a[i] || 0;
+        const numB = b[i] || 0;
+        if (numA !== numB) return numB - numA;
+      }
+      return 0;
+    }
+
+    function renderTools() {
+      const grid = document.getElementById("toolsGrid");
+      grid.innerHTML = "";
+
+      const visible = onlyLatest
+        ? allTools.filter((item) => item.isLatest)
+        : allTools;
+
+      visible.forEach((tool) => {
+        const card = document.createElement("a");
+        card.className = `tool-card ${tool.isLatest ? "latest" : ""}`;
+        card.href = `./${encodeURIComponent(tool.filename)}`;
+
+        card.innerHTML = `
+          <div class="tool-left">
+            <div class="icon-box">${tool.icon}</div>
+            <div class="tool-info">
+              <div class="tool-title-row">
+                <span class="tool-name">${tool.filename.replace(/\.html$/i, "")}</span>
+                <span class="badge badge-ver">${tool.versionStr}</span>
+                ${tool.isLatest ? `<span class="badge badge-latest">Latest</span>` : ""}
+              </div>
+              <div class="tool-desc">${tool.category}</div>
+            </div>
           </div>
-          <span class="arrow">→</span>
-        </a>
-      </div>
-    </section>
+          <div class="arrow">→</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
 
-    <!-- Guitar / Bass Category -->
-    <section class="category">
-      <div class="category-title">DrillBuddy · Guitar &amp; Bass</div>
-      <div class="grid">
-        <a class="card" href="./DrillBuddy_v1.1.html">
-          <div class="card-info">
-            <h2>DrillBuddy <span class="badge">v1.1 Latest</span></h2>
-            <p>Fretboard &amp; scale trainer with J-Pop chord progressions, groove loop, and real-time note highlights.</p>
-          </div>
-          <span class="arrow">→</span>
-        </a>
+    async function fetchRepoFiles() {
+      const statusBox = document.getElementById("statusBox");
+      try {
+        const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/?ref=${BRANCH}`;
+        const res = await fetch(apiUrl, {
+          headers: { "Accept": "application/vnd.github.v3+json" }
+        });
 
-        <a class="card" href="./DrillBuddy_v1.html">
-          <div class="card-info">
-            <h2>DrillBuddy <span class="badge badge-muted">v1.0 Archive</span></h2>
-            <p>Initial release of the fretboard and chord progression drill tool.</p>
-          </div>
-          <span class="arrow">→</span>
-        </a>
-      </div>
-    </section>
+        if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`);
+        const files = await res.json();
 
-    <!-- Keys Category -->
-    <section class="category">
-      <div class="category-title">KeysBuddy · Keyboard &amp; Synth</div>
-      <div class="grid">
-        <a class="card" href="./keysbuddy_v1.html">
-          <div class="card-info">
-            <h2>KeysBuddy <span class="badge">v1.0</span></h2>
-            <p>Keyboard chord voicing, progression ear-training, and synth practice companion.</p>
-          </div>
-          <span class="arrow">→</span>
-        </a>
-      </div>
-    </section>
+        const htmlFiles = files
+          .filter((f) => f.type === "file" && /\.html$/i.test(f.name) && f.name.toLowerCase() !== "index.html")
+          .map((f) => parseToolMeta(f.name));
 
-    <footer>
-      JupitrisPotato / Music-Stuff
-    </footer>
-  </div>
+        // 按系列分组并找出每个系列的最高版本
+        const families = {};
+        htmlFiles.forEach((item) => {
+          if (!families[item.family]) families[item.family] = [];
+          families[item.family].push(item);
+        });
+
+        Object.values(families).forEach((group) => {
+          group.sort((a, b) => compareVersions(a.versionParts, b.versionParts));
+          if (group.length > 0) group[0].isLatest = true;
+        });
+
+        // 最新版置顶，其余按名称与版本降序
+        htmlFiles.sort((a, b) => {
+          if (a.isLatest !== b.isLatest) return a.isLatest ? -1 : 1;
+          if (a.family !== b.family) return a.family.localeCompare(b.family);
+          return compareVersions(a.versionParts, b.versionParts);
+        });
+
+        allTools = htmlFiles;
+        statusBox.style.display = "none";
+        renderTools();
+      } catch (err) {
+        statusBox.textContent = `Failed to load file list automatically (${err.message}). Please refresh.`;
+      }
+    }
+
+    document.getElementById("toggleOldBtn").addEventListener("click", (e) => {
+      onlyLatest = !onlyLatest;
+      e.target.textContent = onlyLatest ? "Only Latest Versions" : "Show All Versions";
+      e.target.classList.toggle("active", onlyLatest);
+      renderTools();
+    });
+
+    fetchRepoFiles();
+  </script>
 </body>
 </html>
